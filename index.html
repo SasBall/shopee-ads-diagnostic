@@ -94,7 +94,9 @@
             uploadBtn.disabled = true;
 
             try {
-                const response = await fetch('/api/upload-csv', {
+                const API_BASE_URL = 'https://shopee-ads-api.onrender.com'; // 👈 นำ URL จากหน้า Dashboard ของ Render มาวางตรงนี้
+
+                const response = await fetch(`${API_BASE_URL}/upload-csv`, {
                     method: 'POST',
                     body: formData
                 });
