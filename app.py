@@ -17,15 +17,20 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 LINE_CHANNEL_ACCESS_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
 LINE_TARGET_ID = os.environ.get("LINE_TARGET_ID")
 
-# เพิ่มบรรทัดนี้ใต้ load_dotenv() ใน app.py
-print(f"📌 LINE Token Loaded: {bool(LINE_CHANNEL_ACCESS_TOKEN)}")
-print(f"📌 LINE Target ID Loaded: {LINE_TARGET_ID}")
 
 app = FastAPI()
 
+# 🟢 เพิ่ม CORS Middleware อนุญาตให้ GitHub Pages เรียกใช้งาน API ได้
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # หรือระบุเฉพาะ ["https://sasball.github.io"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+) 
 
 def analyze_ads_data_with_gemini(data_dict):
-    """ ส่งข้อมูล CSV ที่แปลงเป็น Dict แล้วให้ Gemini 2.5 Flash วิเคราะห์ """
+    """ ส่งข้อมูล CSV ที่แปลงเป็น Dict แล้วให้ Gemini 3.6 Flash วิเคราะห์ """
     client = genai.Client(api_key=GEMINI_API_KEY)
 
     prompt = f"""
