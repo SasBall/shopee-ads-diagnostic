@@ -1,0 +1,9 @@
+# ป้องกันการอัปโหลดไฟล์ Secrets และไฟล์คอนฟิกชั่วคราว
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+*.csvgit status

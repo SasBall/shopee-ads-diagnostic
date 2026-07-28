@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee Ads CSV Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6 font-sans">
+    <div class="max-w-4xl mx-auto space-y-6">
+
+        <!-- Header -->
+        <div class="text-center space-y-2">
+            <h1 class="text-3xl font-bold text-amber-400">📊 Shopee Ads CSV Analyzer</h1>
+            <p class="text-slate-400">อัปโหลดไฟล์รายงาน CSV เพื่อให้ Gemini AI คำนวณและวิเคราะห์ส่งเข้า LINE OA</p>
+        </div>
+
+        <!-- Upload Box -->
+        <div class="bg-slate-800 border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-amber-400 transition-colors cursor-pointer" id="drop-zone">
+            <input type="file" id="file-input" accept=".csv" class="hidden">
+            <div class="space-y-3">
+                <div class="text-5xl">📁</div>
+                <p class="text-lg font-medium">ลากไฟล์ CSV มาวางที่นี่ หรือ <span class="text-amber-400 underline">คลิกเพื่อเลือกไฟล์</span></p>
+                <p class="text-xs text-slate-400">รองรับเฉพาะไฟล์ .csv จาก Shopee Seller Centre</p>
+            </div>
+            <div id="file-name" class="mt-4 text-sm font-semibold text-emerald-400 hidden"></div>
+        </div>
+
+        <!-- Button -->
+        <button id="upload-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 rounded-lg shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            🚀 เริ่มคำนวณและส่งวิเคราะห์เข้า LINE OA
+        </button>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="hidden text-center py-6 space-y-3">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-400 border-t-transparent"></div>
+            <p class="text-slate-300">กำลังอ่านข้อมูล CSV และให้ Gemini AI ประมวลผล...</p>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-box" class="hidden space-y-4 bg-slate-800 p-6 rounded-xl border border-slate-700">
+            <h2 class="text-xl font-bold text-emerald-400 border-b border-slate-700 pb-2">✅ ผลการวิเคราะห์จาก Gemini AI</h2>
+            <div id="line-status" class="text-sm font-medium"></div>
+            <div id="ai-report" class="bg-slate-900 p-4 rounded-lg whitespace-pre-wrap font-mono text-sm leading-relaxed text-slate-200 overflow-x-auto max-h-96"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        const uploadBtn = document.getElementById('upload-btn');
+        const loading = document.getElementById('loading');
+        const resultBox = document.getElementById('result-box');
+        const aiReportDisplay = document.getElementById('ai-report');
+        const lineStatus = document.getElementById('line-status');
+
+        let selectedFile = null;
+
+        // Drag & Drop Handling
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-amber-400'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-amber-400'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-amber-400');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
+        function handleFile(file) {
+            if (!file.name.endsWith('.csv')) {
+                alert('กรุณาเลือกไฟล์ .csv เท่านั้นครับ');
+                return;
+            }
+            selectedFile = file;
+            fileNameDisplay.textContent = `📄 เลือกไฟล์แล้ว: ${file.name}`;
+            fileNameDisplay.classList.remove('hidden');
+        }
+
+        // Upload and Process
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                alert('กรุณาเลือกไฟล์ CSV ก่อนครับ');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            loading.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+            uploadBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/upload-csv', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    aiReportDisplay.textContent = data.ai_report;
+                    if (data.line_sent) {
+                        lineStatus.innerHTML = '<span class="text-emerald-400">📲 ส่งรายงานเข้า LINE OA สำเร็จเรียบร้อย!</span>';
+                    } else {
+                        lineStatus.innerHTML = '<span class="text-amber-400">⚠️ คำนวณสำเร็จ แต่ไม่ได้ส่งเข้า LINE (โปรดตรวจสอบ LINE Credentials ใน .env)</span>';
+                    }
+                    resultBox.classList.remove('hidden');
+                } else {
+                    alert(`Error: ${data.detail}`);
+                }
+            } catch (err) {
+                alert(`เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์: ${err.message}`);
+            } finally {
+                loading.classList.add('hidden');
+                uploadBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
