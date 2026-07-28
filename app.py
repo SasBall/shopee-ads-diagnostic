@@ -6,6 +6,7 @@ import requests
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 from dotenv import load_dotenv
 
@@ -82,7 +83,7 @@ async def read_index():
         return f.read()
 
 
-@app.post("upload-csv")
+@app.post("/api/upload-csv")
 async def upload_csv(file: UploadFile = File(...)):
     """ Endpoint สำหรับรับไฟล์ CSV จาก Shopee มาประมวลผลอย่างแม่นยำ """
     if not file.filename.endswith('.csv'):
