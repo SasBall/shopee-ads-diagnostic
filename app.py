@@ -82,7 +82,7 @@ async def read_index():
         return f.read()
 
 
-@app.post("/api/upload-csv")
+@app.post("upload-csv")
 async def upload_csv(file: UploadFile = File(...)):
     """ Endpoint สำหรับรับไฟล์ CSV จาก Shopee มาประมวลผลอย่างแม่นยำ """
     if not file.filename.endswith('.csv'):
