@@ -50,11 +50,8 @@ def analyze_ads_data_with_gemini(data_dict):
     """
 
     try:
-        # ✅ ระบุชื่อโมเดลเป็น 'gemini-1.5-flash' หรือ 'gemini-2.0-flash' โดย **ไม่มี** 'models/' นำหน้า
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=prompt
-        )
+        model = genai.GenerativeModel('gemini-1.5-flash') # ✅ สั้นๆ แค่นี้ ไม่มี models/ นำหน้า
+        response = model.generate_content(prompt)
         return response.text.strip()
     except Exception as e:
         return f"⚠️ Gemini Error: {e}"
