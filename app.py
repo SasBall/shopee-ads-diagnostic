@@ -49,7 +49,7 @@ def analyze_ads_data_with_gemini(data_dict):
     ตอบเป็นภาษาไทย รูปแบบสวยงาม อ่านง่ายใน LINE
     """
 
-        try:
+    try:
         response = client.models.generate_content(
             model='models/gemini-3.6-flash',
             contents=prompt
