@@ -51,7 +51,7 @@ def analyze_ads_data_with_gemini(data_dict):
 
     try:
         response = client.models.generate_content(
-            model='models/gemini-1.5-flash',
+            model='models/gemini-2.5-flash',
             contents=prompt
         )
         return response.text.strip()
