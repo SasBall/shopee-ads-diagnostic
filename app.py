@@ -7,7 +7,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -49,9 +49,11 @@ def analyze_ads_data_with_gemini(data_dict):
     ตอบเป็นภาษาไทย รูปแบบสวยงาม อ่านง่ายใน LINE
     """
 
-    try:
-        model = genai.GenerativeModel('models/gemini-1.5-flash') # ✅ สั้นๆ แค่นี้ ไม่มี models/ นำหน้า
-        response = model.generate_content(prompt)
+        try:
+        response = client.models.generate_content(
+            model='models/gemini-3.6-flash',
+            contents=prompt
+        )
         return response.text.strip()
     except Exception as e:
         return f"⚠️ Gemini Error: {e}"
